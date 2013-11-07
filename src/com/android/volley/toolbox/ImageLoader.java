@@ -41,6 +41,12 @@ import java.util.LinkedList;
  * thread as well.
  */
 public class ImageLoader {
+
+    /**
+     * Tag used for Requests
+     */
+    protected String IMG_TAG = "img";
+
     /** RequestQueue for dispatching ImageRequests onto. */
     private final RequestQueue mRequestQueue;
 
@@ -230,6 +236,9 @@ public class ImageLoader {
                 }
             });
 
+        //set tag so later we can cancel
+        newRequest.setTag(IMG_TAG);
+
         mRequestQueue.add(newRequest);
         mInFlightRequests.put(cacheKey,
                 new BatchedImageRequest(newRequest, imageContainer));
@@ -243,6 +252,14 @@ public class ImageLoader {
      */
     public void setBatchedResponseDelay(int newBatchedResponseDelayMs) {
         mBatchResponseDelayMs = newBatchedResponseDelayMs;
+    }
+
+    /**
+     * getRequestQueue
+     * @return
+     */
+    public RequestQueue getRequestQueue() {
+        return mRequestQueue;
     }
 
     /**
