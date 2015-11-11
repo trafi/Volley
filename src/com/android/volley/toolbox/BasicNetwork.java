@@ -160,7 +160,7 @@ public class BasicNetwork implements Network {
                                  byte[] responseContents, StatusLine statusLine) {
         if (DEBUG || requestLifetime > SLOW_REQUEST_THRESHOLD_MS) {
             VolleyLog.d("HTTP response for request=<%s> [lifetime=%d], [size=%s], " +
-                    "[rc=%d], [retryCount=%s]", request, requestLifetime,
+                            "[rc=%d], [retryCount=%s]", request, requestLifetime,
                     responseContents != null ? responseContents.length : "null",
                     statusLine.getStatusCode(), request.getRetryPolicy().getCurrentRetryCount());
         }
@@ -215,17 +215,20 @@ public class BasicNetwork implements Network {
         PoolingByteArrayOutputStream bytes =
                 new PoolingByteArrayOutputStream(mPool, (int) entity.getContentLength());
         byte[] buffer = null;
+        int count = 0;
         try {
             InputStream in = entity.getContent();
             if (in == null) {
                 throw new ServerError();
             }
             buffer = mPool.getBuf(1024);
-            int count;
-            while ((count = in.read(buffer)) != -1) {
+            while (buffer != null && (count = in.read(buffer)) != -1) {
                 bytes.write(buffer, 0, count);
             }
             return bytes.toByteArray();
+        } catch (IOException e) {
+            VolleyLog.v("Read error " + count);
+            return new byte[0];
         } finally {
             try {
                 // Close the InputStream and release the resources by "consuming the content".
